@@ -12,6 +12,9 @@ const letters = ref<string[]>([]);
 const currentLetters = computed(() => {
   return letters.value.filter(x => word.value.includes(x))
 });
+const wrongLetters = computed(() => {
+  return letters.value.filter(x => !word.value.includes(x))
+});
 
 window.addEventListener("keydown", ({key}) => {
   if (/[а-яА-ЯёЁ]/.test(key)) {
@@ -24,7 +27,7 @@ window.addEventListener("keydown", ({key}) => {
   <Header />
   <div class="game-container">
     <Figure />
-    <WrongLetters />
+    <WrongLetters :wrong-letters="wrongLetters"/>
     <Word :word="word" :current-letters="currentLetters"/>
   </div>
   <Popup v-if="false"/>
