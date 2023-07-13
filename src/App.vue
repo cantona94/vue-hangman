@@ -5,50 +5,54 @@ import WrongLetters from './components/WrongLetters.vue'
 import Word from './components/Word.vue'
 import Popup from './components/Popup.vue'
 import Notification from './components/Notification.vue'
-import { computed, ref, watch } from 'vue'
+import { ref, watch } from 'vue'
+import { useRandomWord } from './composables/useRandomWord'
+import { useLetters } from './composables/useLetters'
+import { useNotification } from './composables/useNotification'
 
-const word = ref("владимир");
-const letters = ref<string[]>([]);
-const notification = ref<InstanceType<typeof Notification> | null>(null)
-const popup = ref<InstanceType<typeof Popup> | null>(null)
+const { word, getRandomWord } = useRandomWord();
+const { notification, showNotification } = useNotification();
+const {
+  letters,
+  currentLetters,
+  wrongLetters,
+  isWin,
+  isLose,
+  addLetter, 
+  resetLetters,
+} = useLetters(word);
 
-const currentLetters = computed(() => {
-  return letters.value.filter(x => word.value.includes(x))
-});
-const wrongLetters = computed(() => {
-  return letters.value.filter(x => !word.value.includes(x))
-});
+const popup = ref<InstanceType<typeof Popup> | null>(null);
+const restart = async () => {
+  resetLetters();
+  popup.value?.close();
+  await getRandomWord();
+}
 
 watch(currentLetters, () => {
-  if ([...word.value].every(x => currentLetters.value.includes(x))) {
+  if (isWin.value) {
     popup.value?.open('win')
   }
 })
 
 watch(wrongLetters, () => {
-  if (wrongLetters.value.length === 6) {
+  if (isLose.value) {
     popup.value?.open('lose')
   }
 })
 
 window.addEventListener("keydown", ({key}) => {
+  if (isWin.value || isLose.value) {
+    return
+  }
+
   if (letters.value.includes(key)) {
-    notification.value?.open();
-    setTimeout(() => {
-      notification.value?.close()
-    }, 1000);
+    showNotification();
     return 
   }
 
-  if (/[а-яА-ЯёЁ]/.test(key)) {
-    letters.value.push(key.toLowerCase());
-  }
+  addLetter(key);
 })
-
-const restart = () => {
-  letters.value = [];
-  popup.value?.close();
-}
 </script>
 
 <template>
