@@ -5,11 +5,12 @@ import WrongLetters from './components/WrongLetters.vue'
 import Word from './components/Word.vue'
 import Popup from './components/Popup.vue'
 import Notification from './components/Notification.vue'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 const word = ref("владимир");
 const letters = ref<string[]>([]);
 const notification = ref<InstanceType<typeof Notification> | null>(null)
+const popup = ref<InstanceType<typeof Popup> | null>(null)
 
 const currentLetters = computed(() => {
   return letters.value.filter(x => word.value.includes(x))
@@ -17,6 +18,18 @@ const currentLetters = computed(() => {
 const wrongLetters = computed(() => {
   return letters.value.filter(x => !word.value.includes(x))
 });
+
+watch(currentLetters, () => {
+  if ([...word.value].every(x => currentLetters.value.includes(x))) {
+    popup.value?.open('win')
+  }
+})
+
+watch(wrongLetters, () => {
+  if (wrongLetters.value.length === 6) {
+    popup.value?.open('lose')
+  }
+})
 
 window.addEventListener("keydown", ({key}) => {
   if (letters.value.includes(key)) {
@@ -31,6 +44,11 @@ window.addEventListener("keydown", ({key}) => {
     letters.value.push(key.toLowerCase());
   }
 })
+
+const restart = () => {
+  letters.value = [];
+  popup.value?.close();
+}
 </script>
 
 <template>
@@ -40,6 +58,6 @@ window.addEventListener("keydown", ({key}) => {
     <WrongLetters :wrong-letters="wrongLetters"/>
     <Word :word="word" :current-letters="currentLetters"/>
   </div>
-  <Popup v-if="false"/>
+  <Popup ref="popup" :word="word" @restart="restart"/>
   <Notification ref="notification"/> 
 </template>
