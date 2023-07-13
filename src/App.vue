@@ -9,6 +9,8 @@ import { computed, ref } from 'vue'
 
 const word = ref("владимир");
 const letters = ref<string[]>([]);
+const notification = ref<InstanceType<typeof Notification> | null>(null)
+
 const currentLetters = computed(() => {
   return letters.value.filter(x => word.value.includes(x))
 });
@@ -17,6 +19,14 @@ const wrongLetters = computed(() => {
 });
 
 window.addEventListener("keydown", ({key}) => {
+  if (letters.value.includes(key)) {
+    notification.value?.open();
+    setTimeout(() => {
+      notification.value?.close()
+    }, 1000);
+    return 
+  }
+
   if (/[а-яА-ЯёЁ]/.test(key)) {
     letters.value.push(key.toLowerCase());
   }
@@ -31,5 +41,5 @@ window.addEventListener("keydown", ({key}) => {
     <Word :word="word" :current-letters="currentLetters"/>
   </div>
   <Popup v-if="false"/>
-  <Notification /> 
+  <Notification ref="notification"/> 
 </template>
