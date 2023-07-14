@@ -11,16 +11,25 @@ import { useLetters } from './composables/useLetters'
 import { useNotification } from './composables/useNotification'
 
 const { word, getRandomWord } = useRandomWord();
-const { notification, showNotification } = useNotification();
+const {
+  notification,
+  showNotificationRepetition,
+  showNotificationOnlyRusChar,
+} = useNotification();
+
+const isCharCheck = (key: string) => {
+  return /[а-яА-ЯёЁ]/.test(key);
+}
+
 const {
   letters,
   currentLetters,
   wrongLetters,
   isWin,
   isLose,
-  addLetter, 
+  addLetter,
   resetLetters,
-} = useLetters(word);
+} = useLetters(word, isCharCheck);
 
 const popup = ref<InstanceType<typeof Popup> | null>(null);
 const restart = async () => {
@@ -41,14 +50,20 @@ watch(wrongLetters, () => {
   }
 })
 
-window.addEventListener("keydown", ({key}) => {
+window.addEventListener("keydown", ({ key }) => {
+  key = key.toLowerCase();
   if (isWin.value || isLose.value) {
     return
   }
 
   if (letters.value.includes(key)) {
-    showNotification();
-    return 
+    showNotificationRepetition();
+    return
+  }
+
+  if (!isCharCheck(key)) {
+    showNotificationOnlyRusChar();
+    return
   }
 
   addLetter(key);
@@ -58,10 +73,10 @@ window.addEventListener("keydown", ({key}) => {
 <template>
   <Header />
   <div class="game-container">
-    <Figure :wrong-letters-count="wrongLetters.length"/>
-    <WrongLetters :wrong-letters="wrongLetters"/>
-    <Word :word="word" :current-letters="currentLetters"/>
+    <Figure :wrong-letters-count="wrongLetters.length" />
+    <WrongLetters :wrong-letters="wrongLetters" />
+    <Word :word="word" :current-letters="currentLetters" />
   </div>
-  <Popup ref="popup" :word="word" @restart="restart"/>
-  <Notification ref="notification"/> 
+  <Popup ref="popup" :word="word" @restart="restart" />
+  <Notification ref="notification" />
 </template>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 interface IProps {
-  wrongLettersCount: number; 
+  wrongLettersCount: number;
 }
 
 defineProps<IProps>()
@@ -24,5 +24,5 @@ defineProps<IProps>()
     <!-- Legs -->
     <line v-if="wrongLettersCount >= 5" x1="140" y1="150" x2="120" y2="180" />
     <line v-if="wrongLettersCount >= 6" x1="140" y1="150" x2="160" y2="180" />
-    </svg>
+  </svg>
 </template>

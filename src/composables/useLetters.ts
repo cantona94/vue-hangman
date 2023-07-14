@@ -1,6 +1,6 @@
 import { computed, ref, type Ref } from 'vue'
 
-export const useLetters = (word: Ref<string>) => {
+export const useLetters = (word: Ref<string>, isCharCheck: (key: string) => boolean) => {
   const letters = ref<string[]>([]);
 
   const currentLetters = computed(() => {
@@ -13,7 +13,7 @@ export const useLetters = (word: Ref<string>) => {
   const isWin = computed(() => [...word.value].every(x => currentLetters.value.includes(x)));
   const isLose = computed(() => wrongLetters.value.length === 6);
   const addLetter = (key: string) => {
-    if (/[а-яА-ЯёЁ]/.test(key)) {
+    if (isCharCheck(key)) {
       letters.value.push(key.toLowerCase());
     }
   }

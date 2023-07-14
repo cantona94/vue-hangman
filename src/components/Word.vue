@@ -9,8 +9,8 @@ defineProps<IProps>()
 
 <template>
   <div class="word">
-      <span v-for="(letter, index) in word" :key="index" class="letter">
+    <span v-for="(letter, index) in word" :key="index" class="letter">
       {{ currentLetters.includes(letter) ? letter : '' }}
-      </span>
-    </div>
+    </span>
+  </div>
 </template>
